@@ -1,14 +1,397 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Document</title>
-</head>
-<body>
-    
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="shortcut icon"
+      href="assets/icons/icon.png"
+      type="image/x-icon"
+    />
+    <link rel="manifest" href="/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
+      }
+    </script>
+    <title>Students</title>
+  </head>
+  <body>
+    <div class="background-blurer invisible" id="background-blurer"></div>
+
+    <form class="student-form-window invisible" id="student-form">
+      <div class="student-form-header">
+        <button
+          type="button"
+          class="square-btn icon-btn delete-btn"
+          id="close-window-btn"
+          onclick="onFormCancel()"
+        >
+          <svg
+            fill="#000000"
+            width="800px"
+            height="800px"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 14.545L1.455 16 8 9.455 14.545 16 16 14.545 9.455 8 16 1.455 14.545 0 8 6.545 1.455 0 0 1.455 6.545 8z"
+              fill-rule="evenodd"
+            />
+          </svg>
+        </button>
+
+        <h2 class="student-form-title" id="student-form-title">Add student</h2>
+      </div>
+
+      <hr />
+
+      <div class="student-form-body">
+        <div class="input-error-container">
+          <div class="input-container">
+            <label for="group" id="group-label">Group</label>
+
+            <select
+              class="disabled-selected"
+              name="group"
+              id="group"
+              required
+              onchange="onFormSelectChange(this)"
+            >
+              <option value="" disabled selected>Select group</option>
+              <option value="PZ-21">PZ-21</option>
+              <option value="PZ-22">PZ-22</option>
+              <option value="PZ-23">PZ-23</option>
+              <option value="PZ-24">PZ-24</option>
+              <option value="PZ-25">PZ-25</option>
+              <option value="PZ-26">PZ-26</option>
+            </select>
+          </div>
+
+          <p class="error-label white-text" id="group-error">
+            Select a group please
+          </p>
+        </div>
+
+        <div class="input-error-container">
+          <div class="input-container">
+            <label for="first-name" id="first-name-label">First name</label>
+
+            <input
+              type="text"
+              name="first-name"
+              id="first-name"
+              onchange="onNameInputChange(this)"
+              required
+              autocomplete="given-name"
+            />
+          </div>
+
+          <p class="error-label white-text" id="first-name-error">
+            Enter a valid first name please
+          </p>
+        </div>
+
+        <div class="input-error-container">
+          <div class="input-container">
+            <label for="last-name" id="last-name-label">Last name</label>
+
+            <input
+              type="text"
+              name="last-name"
+              id="last-name"
+              onchange="onNameInputChange(this)"
+              required
+              autocomplete="family-name"
+            />
+          </div>
+
+          <p class="error-label white-text" id="last-name-error">
+            Enter a valid last name please
+          </p>
+        </div>
+
+        <div class="input-error-container">
+          <div class="input-container">
+            <label for="gender" id="gender-label">Gender</label>
+
+            <select
+              class="disabled-selected"
+              name="gender"
+              id="gender"
+              required
+              onchange="onFormSelectChange(this)"
+            >
+              <option value="" disabled selected>Select gender</option>
+              <option value="M">M</option>
+              <option value="F">F</option>
+            </select>
+          </div>
+
+          <p class="error-label white-text" id="gender-error">
+            Select a gender please
+          </p>
+        </div>
+
+        <div class="input-error-container">
+          <div class="input-container">
+            <label for="birthday">Birthday</label>
+
+            <input
+              type="date"
+              name="birthday"
+              id="birthday"
+              onchange="onFormDateInputChange(this)"
+              required
+            />
+          </div>
+
+          <p class="error-label white-text" id="birthday-error">
+            Enter a birthday please
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="student-form-menu">
+        <button type="button" id="cancel-btn" onclick="onFormCancel()">
+          Cancel
+        </button>
+
+        <button type="submit" id="submit-btn">Create</button>
+      </div>
+    </form>
+
+    <header>
+      <h3 class="acronym">
+        <button class="acronym-btn" onclick="loadPage('students')">CMS</button>
+      </h3>
+      <div
+        class="notification-container"
+        onmouseenter="onNotificationMouseEnter()"
+        onmouseleave="onNotificationMouseLeave()"
+      >
+        <img
+          src="assets/images/notification.svg"
+          alt="notification"
+          class="notification-icon"
+          id="notification"
+        />
+        <span class="notification-badge"></span>
+
+        <div class="chat-preview invisible" id="chat-preview">
+          <div class="chat-message-container">
+            <div class="chat-user-info">
+              <div class="avatar chat-avatar">
+                <svg
+                  width="800px"
+                  height="800px"
+                  viewBox="0 0 20 20"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                >
+                  <g
+                    id="Page-1"
+                    stroke="none"
+                    stroke-width="1"
+                    fill="none"
+                    fill-rule="evenodd"
+                  >
+                    <g
+                      id="Dribbble-Light-Preview"
+                      transform="translate(-420.000000, -2159.000000)"
+                      fill="#000000"
+                    >
+                      <g
+                        id="icons"
+                        transform="translate(56.000000, 160.000000)"
+                      >
+                        <path
+                          d="M374,2009 C371.794,2009 370,2007.206 370,2005 C370,2002.794 371.794,2001 374,2001 C376.206,2001 378,2002.794 378,2005 C378,2007.206 376.206,2009 374,2009 M377.758,2009.673 C379.124,2008.574 380,2006.89 380,2005 C380,2001.686 377.314,1999 374,1999 C370.686,1999 368,2001.686 368,2005 C368,2006.89 368.876,2008.574 370.242,2009.673 C366.583,2011.048 364,2014.445 364,2019 L366,2019 C366,2014 369.589,2011 374,2011 C378.411,2011 382,2014 382,2019 L384,2019 C384,2014.445 381.417,2011.048 377.758,2009.673"
+                          id="profile-[#1335]"
+                        ></path>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <p class="chat-username">Admin</p>
+            </div>
+
+            <div class="chat-message"></div>
+          </div>
+
+          <div class="chat-message-container">
+            <div class="chat-user-info">
+              <div class="avatar chat-avatar">
+                <svg
+                  width="800px"
+                  height="800px"
+                  viewBox="0 0 20 20"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                >
+                  <g
+                    id="Page-1"
+                    stroke="none"
+                    stroke-width="1"
+                    fill="none"
+                    fill-rule="evenodd"
+                  >
+                    <g
+                      id="Dribbble-Light-Preview"
+                      transform="translate(-420.000000, -2159.000000)"
+                      fill="#000000"
+                    >
+                      <g
+                        id="icons"
+                        transform="translate(56.000000, 160.000000)"
+                      >
+                        <path
+                          d="M374,2009 C371.794,2009 370,2007.206 370,2005 C370,2002.794 371.794,2001 374,2001 C376.206,2001 378,2002.794 378,2005 C378,2007.206 376.206,2009 374,2009 M377.758,2009.673 C379.124,2008.574 380,2006.89 380,2005 C380,2001.686 377.314,1999 374,1999 C370.686,1999 368,2001.686 368,2005 C368,2006.89 368.876,2008.574 370.242,2009.673 C366.583,2011.048 364,2014.445 364,2019 L366,2019 C366,2014 369.589,2011 374,2011 C378.411,2011 382,2014 382,2019 L384,2019 C384,2014.445 381.417,2011.048 377.758,2009.673"
+                          id="profile-[#1335]"
+                        ></path>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <p class="chat-username">John K.</p>
+            </div>
+
+            <div class="chat-message"></div>
+          </div>
+
+          <div class="chat-message-container">
+            <div class="chat-user-info">
+              <div class="avatar chat-avatar">
+                <svg
+                  width="800px"
+                  height="800px"
+                  viewBox="0 0 20 20"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                >
+                  <g
+                    id="Page-1"
+                    stroke="none"
+                    stroke-width="1"
+                    fill="none"
+                    fill-rule="evenodd"
+                  >
+                    <g
+                      id="Dribbble-Light-Preview"
+                      transform="translate(-420.000000, -2159.000000)"
+                      fill="#000000"
+                    >
+                      <g
+                        id="icons"
+                        transform="translate(56.000000, 160.000000)"
+                      >
+                        <path
+                          d="M374,2009 C371.794,2009 370,2007.206 370,2005 C370,2002.794 371.794,2001 374,2001 C376.206,2001 378,2002.794 378,2005 C378,2007.206 376.206,2009 374,2009 M377.758,2009.673 C379.124,2008.574 380,2006.89 380,2005 C380,2001.686 377.314,1999 374,1999 C370.686,1999 368,2001.686 368,2005 C368,2006.89 368.876,2008.574 370.242,2009.673 C366.583,2011.048 364,2014.445 364,2019 L366,2019 C366,2014 369.589,2011 374,2011 C378.411,2011 382,2014 382,2019 L384,2019 C384,2014.445 381.417,2011.048 377.758,2009.673"
+                          id="profile-[#1335]"
+                        ></path>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <p class="chat-username">Ann S.</p>
+            </div>
+
+            <div class="chat-message"></div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="profile-info"
+        onmouseenter="onProfileMouseEnter()"
+        onmouseleave="onProfileMouseLeave()"
+      >
+        <div class="avatar profile-avatar">
+          <svg
+            width="800px"
+            height="800px"
+            viewBox="0 0 20 20"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+          >
+            <g
+              id="Page-1"
+              stroke="none"
+              stroke-width="1"
+              fill="none"
+              fill-rule="evenodd"
+            >
+              <g
+                id="Dribbble-Light-Preview"
+                transform="translate(-420.000000, -2159.000000)"
+                fill="#000000"
+              >
+                <g id="icons" transform="translate(56.000000, 160.000000)">
+                  <path
+                    d="M374,2009 C371.794,2009 370,2007.206 370,2005 C370,2002.794 371.794,2001 374,2001 C376.206,2001 378,2002.794 378,2005 C378,2007.206 376.206,2009 374,2009 M377.758,2009.673 C379.124,2008.574 380,2006.89 380,2005 C380,2001.686 377.314,1999 374,1999 C370.686,1999 368,2001.686 368,2005 C368,2006.89 368.876,2008.574 370.242,2009.673 C366.583,2011.048 364,2014.445 364,2019 L366,2019 C366,2014 369.589,2011 374,2011 C378.411,2011 382,2014 382,2019 L384,2019 C384,2014.445 381.417,2011.048 377.758,2009.673"
+                    id="profile-[#1335]"
+                  ></path>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <p class="profile-name">James Bond</p>
+
+        <div
+          class="profile-menu-container invisible"
+          id="profile-menu-container"
+        >
+          <menu class="profile-menu">
+            <ul>
+              <li>
+                <a href="#">Profile</a>
+              </li>
+              <li>
+                <a href="#">Logout</a>
+              </li>
+            </ul>
+          </menu>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <aside>
+        <menu class="sidebar-menu">
+          <button onclick="loadPage('dashboard')" id="dashboard-btn">
+            Dashboard
+          </button>
+          <button
+            onclick="loadPage('students')"
+            id="students-btn"
+            class="selected-page"
+          >
+            Students
+          </button>
+          <button onclick="loadPage('tasks')" id="tasks-btn">Tasks</button>
+        </menu>
+      </aside>
+
+      <iframe
+        id="content"
+        class="main-container"
+        src="students.html"
+        frameborder="0"
+      ></iframe>
+    </main>
+
     <script src="./main.js"></script>
-</body>
+  </body>
 </html>

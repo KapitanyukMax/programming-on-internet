@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="shortcut icon"
+      href="assets/icons/icon.png"
+      type="image/x-icon"
+    />
+    <title>Students</title>
+  </head>
+  <body>
+    <h1>Students</h1>
+
+    <menu class="table-menu">
+      <button
+        type="button"
+        class="square-btn icon-btn"
+        onclick="onAddStudentClick()"
+      >
+        <svg
+          fill="#000000"
+          width="800px"
+          height="800px"
+          viewBox="0 0 1920 1920"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M866.332 213v653.332H213v186.666h653.332v653.332h186.666v-653.332h653.332V866.332h-653.332V213z"
+            fill-rule="evenodd"
+          />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="square-btn icon-btn delete-btn"
+        onclick="onDeleteAllStudentsClick()"
+      >
+        <svg
+          fill="#000000"
+          width="800px"
+          height="800px"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 14.545L1.455 16 8 9.455 14.545 16 16 14.545 9.455 8 16 1.455 14.545 0 8 6.545 1.455 0 0 1.455 6.545 8z"
+            fill-rule="evenodd"
+          />
+        </svg>
+      </button>
+    </menu>
+
+    <table id="students-table" class="students-table">
+      <thead>
+        <tr>
+          <th class="col-1">
+            <input
+              type="checkbox"
+              onchange="onGeneralCheckboxChange()"
+              id="general-checkbox"
+            />
+          </th>
+          <th class="col-2">Group</th>
+          <th class="col-3">Name</th>
+          <th class="col-4">Gender</th>
+          <th class="col-5">Birthday</th>
+          <th class="col-6">Status</th>
+          <th class="col-7">Options</th>
+        </tr>
+      </thead>
+
+      <tbody></tbody>
+    </table>
+
+    <menu class="pagination">
+      <ul>
+        <li>
+          <button class="square-btn" id="prev-btn" disabled>
+            <span>&lt;</span>
+          </button>
+        </li>
+        <li>
+          <button class="square-btn" disabled>
+            <span>1</span>
+          </button>
+        </li>
+        <li>
+          <button class="square-btn">
+            <span>2</span>
+          </button>
+        </li>
+        <li>
+          <button class="square-btn">
+            <span>3</span>
+          </button>
+        </li>
+        <li>
+          <button class="square-btn">
+            <span>4</span>
+          </button>
+        </li>
+        <li>
+          <button class="square-btn" id="next-btn">
+            <span>&gt;</span>
+          </button>
+        </li>
+      </ul>
+    </menu>
+
+    <div class="triangle-container"></div>
+
+    <script src="students.js"></script>
+  </body>
+</html>
