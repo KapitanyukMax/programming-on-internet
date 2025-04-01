@@ -104,14 +104,14 @@ function loadPage(page) {
     .querySelectorAll("menu.sidebar-menu button")
     .forEach((button) => button.classList.remove("selected-page"));
 
-    document.getElementById(`${page}-btn`).classList.add("selected-page");
+  document.getElementById(`${page}-btn`).classList.add("selected-page");
 }
 
 function adjustIframeHeight() {
   let iframe = document.getElementById("content");
   if (iframe.contentWindow.document.body) {
     iframe.style.height =
-      iframe.contentWindow.document.body.scrollHeight + "px";
+      iframe.contentWindow.document.body.scrollHeight + 2 + "px";
   }
 }
 
