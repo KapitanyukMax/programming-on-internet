@@ -1,7 +1,7 @@
 {
   "name": "Student Manager",
   "short_name": "CMS",
-  "start_url": "/students.html",
+  "start_url": "/",
   "display": "standalone",
   "description": "A simple student management system.",
   "background_color": "#ffffff",
