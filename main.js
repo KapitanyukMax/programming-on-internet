@@ -79,6 +79,14 @@ function onFormCancel() {
   document.getElementById("background-blurer").classList.add("invisible");
 }
 
+function showDeleteModal(deletedStudentName) {
+  document.getElementById("background-blurer").classList.remove("invisible");
+  document.getElementById("delete-modal").classList.remove("invisible");
+  document.getElementById("delete-modal-message").textContent = deletedStudentName
+    ? `Are you sure you want to delete user ${deletedStudentName}?`
+    : "Are you sure you want to delete the users?";
+}
+
 function onNotificationMouseEnter() {
   document.getElementById("chat-preview").classList.remove("invisible");
 }

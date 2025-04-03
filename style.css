@@ -189,6 +189,70 @@ hr {
   border-color: black;
 }
 
+.delete-modal {
+  width: 600px;
+  height: 350px;
+  box-sizing: border-box;
+  background-color: white;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  border: 1px solid #666666;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.delete-modal-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 30px 30px 10px;
+}
+
+.delete-modal-header .delete-modal-title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.delete-modal-body {
+  padding: 30px;
+  height: 100px;
+}
+
+.delete-modal-body .delete-modal-message {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.delete-modal-menu {
+  padding: 10px 30px 30px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.delete-modal-menu button {
+  width: 90px;
+  padding: 10px 5px;
+  border: 1px solid #666666;
+  color: #666666;
+  background-color: white;
+}
+
+.delete-modal-menu button:hover {
+  background-color: #eeeeee;
+}
+
+.delete-modal-menu button:focus {
+  outline: none;
+  color: black;
+  border-color: black;
+}
+
 header {
   background-color: #9b9b9b;
   height: 50px;
@@ -368,7 +432,16 @@ header {
 }
 
 .profile-menu li a {
-  color: #4a4a4a;
+  color: #444444;
+}
+
+.profile-menu li a:hover {
+  color: #666666;
+}
+
+.profile-menu li a:active {
+  font-weight: 600;
+  color: black;
 }
 
 main {

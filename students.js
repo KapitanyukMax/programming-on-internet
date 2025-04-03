@@ -3,7 +3,10 @@ let edittedStudentId = null;
 const idGeneratorStr = localStorage.getItem("idGenerator");
 let idGenerator = idGeneratorStr ? +idGeneratorStr : 0;
 const studentsStr = localStorage.getItem("students");
-const students = studentsStr ? JSON.parse(studentsStr) : [];
+let students = studentsStr ? JSON.parse(studentsStr) : [];
+let prefilteredStudents = students;
+let predeletedStudents = [];
+let isMultipleDelete = false;
 
 const parentDoc = window.parent.document;
 
@@ -113,6 +116,10 @@ function refillStudentsTable() {
     studentsTableBody.appendChild(row);
   });
 
+  document.querySelectorAll("input[type=checkbox]").forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+
   resizeParent();
 }
 
@@ -147,7 +154,7 @@ function onAddStudentClick() {
 
   formState = "add";
   parentDoc.getElementById("student-form-title").textContent = "Add student";
-  parentDoc.getElementById("submit-btn").textContent = "Create";
+  parentDoc.getElementById("submit-form-btn").textContent = "Create";
 
   edittedStudentId = null;
 }
@@ -159,7 +166,7 @@ function onEditStudentClick(studentId) {
 
   formState = "edit";
   parentDoc.getElementById("student-form-title").textContent = "Edit student";
-  parentDoc.getElementById("submit-btn").textContent = "Save";
+  parentDoc.getElementById("submit-form-btn").textContent = "Save";
 
   edittedStudentId = studentId;
   const student = students.find((student) => student.id === studentId);
@@ -184,11 +191,18 @@ function onEditStudentClick(studentId) {
 }
 
 function onDeleteStudentClick(studentId) {
-  const studentIndex = students.findIndex(
-    (student) => student.id === studentId
+  prefilteredStudents = students.filter(function (student) {
+    if (student.id === studentId) {
+      predeletedStudents = [student];
+      return false;
+    }
+    return true;
+  });
+  isMultipleDelete = false;
+
+  window.parent.showDeleteModal(
+    `${predeletedStudents[0].firstName} ${predeletedStudents[0].lastName}`
   );
-  students.splice(studentIndex, 1);
-  refillStudentsTable();
 }
 
 function onDeleteAllStudentsClick() {
@@ -202,135 +216,176 @@ function onDeleteAllStudentsClick() {
     )
     .map((checkbox) => +checkbox.dataset.id);
 
-  const selectedStudentsIndices = students
-    .map((student, index) => (selectedIds.includes(student.id) ? index : null))
-    .filter((id) => id !== null)
-    .sort((a, b) => a - b);
+  if (selectedIds.length === 0) return;
 
-  for (let i = students.length - 1; i >= 0; i--) {
-    if (i === selectedStudentsIndices[selectedStudentsIndices.length - 1]) {
-      students.splice(i, 1);
-      selectedStudentsIndices.pop();
+  predeletedStudents = [];
+  prefilteredStudents = [];
+  students.forEach(function (student) {
+    if (selectedIds.includes(student.id)) {
+      predeletedStudents.push(student);
+    } else {
+      prefilteredStudents.push(student);
     }
+  });
+
+  isMultipleDelete = true;
+
+  window.parent.showDeleteModal(null);
+}
+
+function submitStudentForm(event) {
+  event.preventDefault();
+
+  const nameRegex = window.parent.getNameRegex();
+
+  const groupSelect = parentDoc.getElementById("group");
+  const firstNameInput = parentDoc.getElementById("first-name");
+  const lastNameInput = parentDoc.getElementById("last-name");
+  const genderSelect = parentDoc.getElementById("gender");
+  const birthdayInput = parentDoc.getElementById("birthday");
+
+  let valid = true;
+
+  if (!groupSelect.value) {
+    valid = false;
+    groupSelect.classList.add("invalid-field");
+    groupSelect.classList.remove("disabled-selected");
+    parentDoc.getElementById("group-error").classList.remove("white-text");
+    parentDoc.getElementById("group-error").classList.add("red-text");
   }
+
+  if (
+    !firstNameInput.value ||
+    !nameRegex.test(firstNameInput.value) ||
+    firstNameInput.value.length <= 2
+  ) {
+    valid = false;
+    firstNameInput.classList.add("invalid-field");
+    parentDoc.getElementById("first-name-error").classList.remove("white-text");
+    parentDoc.getElementById("first-name-error").classList.add("red-text");
+  }
+
+  if (
+    !lastNameInput.value ||
+    !nameRegex.test(lastNameInput.value) ||
+    lastNameInput.value.length <= 2
+  ) {
+    valid = false;
+    lastNameInput.classList.add("invalid-field");
+    parentDoc.getElementById("last-name-error").classList.remove("white-text");
+    parentDoc.getElementById("last-name-error").classList.add("red-text");
+  }
+
+  if (!genderSelect.value) {
+    valid = false;
+    genderSelect.classList.add("invalid-field");
+    genderSelect.classList.remove("disabled-selected");
+    parentDoc.getElementById("gender-error").classList.remove("white-text");
+    parentDoc.getElementById("gender-error").classList.add("red-text");
+  }
+
+  if (!birthdayInput.value) {
+    valid = false;
+    birthdayInput.classList.add("invalid-field");
+    birthdayInput.classList.remove("filled-field");
+    parentDoc.getElementById("birthday-error").classList.remove("white-text");
+    parentDoc.getElementById("birthday-error").classList.add("red-text");
+    parentDoc.getElementById("birthday-error").textContent =
+      "Enter a birthday please";
+  } else if (!window.parent.isAgeInRange(birthdayInput.value, 13, 100)) {
+    valid = false;
+    birthdayInput.classList.add("invalid-field");
+    birthdayInput.classList.remove("filled-field");
+    parentDoc.getElementById("birthday-error").classList.remove("white-text");
+    parentDoc.getElementById("birthday-error").classList.add("red-text");
+    parentDoc.getElementById("birthday-error").textContent = "Invalid age";
+  }
+
+  if (!valid) return;
+
+  parentDoc.getElementById("student-form").classList.add("invisible");
+  parentDoc.getElementById("background-blurer").classList.add("invisible");
+
+  let id;
+
+  if (formState === "add") {
+    idGenerator++;
+    localStorage.setItem("idGenerator", idGenerator);
+    id = idGenerator;
+    students.push({
+      id,
+      group: groupSelect.value,
+      firstName: firstNameInput.value,
+      lastName: lastNameInput.value,
+      gender: genderSelect.value,
+      birthday: birthdayInput.value,
+    });
+  } else {
+    const studentIndex = students.findIndex(
+      (student) => student.id === edittedStudentId
+    );
+
+    id = edittedStudentId;
+
+    students[studentIndex] = {
+      id,
+      group: groupSelect.value,
+      firstName: firstNameInput.value,
+      lastName: lastNameInput.value,
+      gender: genderSelect.value,
+      birthday: birthdayInput.value,
+    };
+  }
+
+  const reqStr =
+    `${formState}: ${id}|${groupSelect.value}|${firstNameInput.value}|` +
+    `${lastNameInput.value}|${genderSelect.value}|${birthdayInput.value}`;
+  console.log(reqStr);
+
   refillStudentsTable();
 }
 
+function onDeleteModalApprove(event) {
+  event.preventDefault();
+
+  let reqStr = `delete:\n`;
+  for (let i = 0; i < predeletedStudents.length; i++) {
+    reqStr +=
+      `[${i}] - ${predeletedStudents[i].id}|${predeletedStudents[i].group}|${predeletedStudents[i].firstName}|` +
+      `${predeletedStudents[i].lastName}|${predeletedStudents[i].gender}|${predeletedStudents[i].birthday}\n`;
+  }
+  console.log(reqStr);
+
+  parentDoc.getElementById("delete-modal").classList.add("invisible");
+  parentDoc.getElementById("background-blurer").classList.add("invisible");
+  isMultipleDelete = false;
+  students = prefilteredStudents;
+  predeletedStudents = [];
+
+  refillStudentsTable();
+}
+
+function onDeleteModalCancel() {
+  parentDoc.getElementById("delete-modal").classList.add("invisible");
+  parentDoc.getElementById("background-blurer").classList.add("invisible");
+  isMultipleDelete = false;
+  prefilteredStudents = students;
+}
+
 parentDoc
-  .getElementById("submit-btn")
-  .addEventListener("click", function (event) {
-    event.preventDefault();
+  .getElementById("submit-form-btn")
+  .addEventListener("click", submitStudentForm);
 
-    const nameRegex = window.parent.getNameRegex();
+parentDoc
+  .getElementById("approve-delete-btn")
+  .addEventListener("click", onDeleteModalApprove);
 
-    const groupSelect = parentDoc.getElementById("group");
-    const firstNameInput = parentDoc.getElementById("first-name");
-    const lastNameInput = parentDoc.getElementById("last-name");
-    const genderSelect = parentDoc.getElementById("gender");
-    const birthdayInput = parentDoc.getElementById("birthday");
+parentDoc
+  .getElementById("cancel-delete-btn")
+  .addEventListener("click", onDeleteModalCancel);
 
-    let valid = true;
-
-    if (!groupSelect.value) {
-      valid = false;
-      groupSelect.classList.add("invalid-field");
-      groupSelect.classList.remove("disabled-selected");
-      parentDoc.getElementById("group-error").classList.remove("white-text");
-      parentDoc.getElementById("group-error").classList.add("red-text");
-    }
-
-    if (
-      !firstNameInput.value ||
-      !nameRegex.test(firstNameInput.value) ||
-      firstNameInput.value.length <= 2
-    ) {
-      valid = false;
-      firstNameInput.classList.add("invalid-field");
-      parentDoc
-        .getElementById("first-name-error")
-        .classList.remove("white-text");
-      parentDoc.getElementById("first-name-error").classList.add("red-text");
-    }
-
-    if (
-      !lastNameInput.value ||
-      !nameRegex.test(lastNameInput.value) ||
-      lastNameInput.value.length <= 2
-    ) {
-      valid = false;
-      lastNameInput.classList.add("invalid-field");
-      parentDoc
-        .getElementById("last-name-error")
-        .classList.remove("white-text");
-      parentDoc.getElementById("last-name-error").classList.add("red-text");
-    }
-
-    if (!genderSelect.value) {
-      valid = false;
-      genderSelect.classList.add("invalid-field");
-      genderSelect.classList.remove("disabled-selected");
-      parentDoc.getElementById("gender-error").classList.remove("white-text");
-      parentDoc.getElementById("gender-error").classList.add("red-text");
-    }
-
-    if (!birthdayInput.value) {
-      valid = false;
-      birthdayInput.classList.add("invalid-field");
-      birthdayInput.classList.remove("filled-field");
-      parentDoc.getElementById("birthday-error").classList.remove("white-text");
-      parentDoc.getElementById("birthday-error").classList.add("red-text");
-      parentDoc.getElementById("birthday-error").textContent =
-        "Enter a birthday please";
-    } else if (!window.parent.isAgeInRange(birthdayInput.value, 13, 100)) {
-      valid = false;
-      birthdayInput.classList.add("invalid-field");
-      birthdayInput.classList.remove("filled-field");
-      parentDoc.getElementById("birthday-error").classList.remove("white-text");
-      parentDoc.getElementById("birthday-error").classList.add("red-text");
-      parentDoc.getElementById("birthday-error").textContent = "Invalid age";
-    }
-
-    if (!valid) return;
-
-    parentDoc.getElementById("student-form").classList.add("invisible");
-    parentDoc.getElementById("background-blurer").classList.add("invisible");
-
-    let id;
-
-    if (formState === "add") {
-      idGenerator++;
-      localStorage.setItem("idGenerator", idGenerator);
-      id = idGenerator;
-      students.push({
-        id,
-        group: groupSelect.value,
-        firstName: firstNameInput.value,
-        lastName: lastNameInput.value,
-        gender: genderSelect.value,
-        birthday: birthdayInput.value,
-      });
-    } else {
-      const studentIndex = students.findIndex(
-        (student) => student.id === edittedStudentId
-      );
-
-      id = edittedStudentId;
-
-      students[studentIndex] = {
-        id,
-        group: groupSelect.value,
-        firstName: firstNameInput.value,
-        lastName: lastNameInput.value,
-        gender: genderSelect.value,
-        birthday: birthdayInput.value,
-      };
-    }
-
-    const reqStr =
-      `${id}|${groupSelect.value}|${firstNameInput.value}|` +
-      `${lastNameInput.value}|${genderSelect.value}|${birthdayInput.value}`;
-
-    refillStudentsTable();
-  });
+parentDoc
+  .getElementById("delete-modal-close-btn")
+  .addEventListener("click", onDeleteModalCancel);
 
 refillStudentsTable();
