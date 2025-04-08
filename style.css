@@ -296,6 +296,17 @@ header {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .chat-preview {
@@ -436,7 +447,7 @@ header {
 }
 
 .profile-menu li a:hover {
-  color: #666666;
+  color: #888888;
 }
 
 .profile-menu li a:active {
