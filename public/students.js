@@ -1,14 +1,33 @@
+const baseUrl = "http://localhost/programming-on-internet";
+
 let formState = "add";
 let edittedStudentId = null;
-const idGeneratorStr = localStorage.getItem("idGenerator");
-let idGenerator = idGeneratorStr ? +idGeneratorStr : 0;
-const studentsStr = localStorage.getItem("students");
-let students = studentsStr ? JSON.parse(studentsStr) : [];
-let prefilteredStudents = students;
-let predeletedStudents = [];
+let students = [];
+let studentsIdsToDelete = [];
 let isMultipleDelete = false;
 
 const parentDoc = window.parent.document;
+
+async function apiRequest(apiUrl, method, body) {
+  console.log(`Request: ${method} ${apiUrl}`);
+  if (body) console.log("Request body:", body);
+
+  const res = await fetch(baseUrl + apiUrl, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body,
+  });
+
+  const data = await res.json();
+  if (data.error) {
+    throw new Error(data.error);
+  }
+
+  console.log("Response:", data);
+  return data;
+}
 
 function resizeParent() {
   if (window.parent && window.parent.adjustIframeHeight) {
@@ -16,8 +35,15 @@ function resizeParent() {
   }
 }
 
-function refillStudentsTable() {
-  localStorage.setItem("students", JSON.stringify(students));
+async function refillStudentsTable() {
+  try {
+    const data = await apiRequest("/api/students", "GET");
+    students = data.students ?? [];
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+
   const studentsTableBody = document.querySelector(
     "table#students-table tbody"
   );
@@ -159,7 +185,7 @@ function onAddStudentClick() {
   edittedStudentId = null;
 }
 
-function onEditStudentClick(studentId) {
+async function onEditStudentClick(studentId) {
   parentDoc.getElementById("student-form").classList.remove("invisible");
   parentDoc.getElementById("background-blurer").classList.remove("invisible");
   parentDoc.getElementById("student-form").reset();
@@ -169,7 +195,8 @@ function onEditStudentClick(studentId) {
   parentDoc.getElementById("submit-form-btn").textContent = "Save";
 
   edittedStudentId = studentId;
-  const student = students.find((student) => student.id === studentId);
+  const data = await apiRequest(`/api/students/${studentId}`, "GET");
+  const student = data.student;
 
   const groupSelect = parentDoc.getElementById("group");
   groupSelect.value = student.group;
@@ -190,25 +217,27 @@ function onEditStudentClick(studentId) {
   }
 }
 
-function onDeleteStudentClick(studentId) {
-  prefilteredStudents = students.filter(function (student) {
-    if (student.id === studentId) {
-      predeletedStudents = [student];
-      return false;
-    }
-    return true;
-  });
-  isMultipleDelete = false;
+async function onDeleteStudentClick(studentId) {
+  try {
+    const data = await apiRequest(`/api/students/${studentId}`, "GET");
+    const studentToDelete = data.student;
 
-  window.parent.showDeleteModal(
-    `${predeletedStudents[0].firstName} ${predeletedStudents[0].lastName}`
-  );
+    studentsIdsToDelete = [studentId];
+    isMultipleDelete = false;
+
+    window.parent.showDeleteModal(
+      `${studentToDelete.firstName} ${studentToDelete.lastName}`
+    );
+  } catch (error) {
+    window.parent.showErrorModal(error);
+    return;
+  }
 }
 
 function onDeleteAllStudentsClick() {
   const generalCheckbox = document.getElementById("general-checkbox");
 
-  const selectedIds = Array.from(
+  studentsIdsToDelete = Array.from(
     document.querySelectorAll("input[type=checkbox]")
   )
     .filter(
@@ -216,27 +245,14 @@ function onDeleteAllStudentsClick() {
     )
     .map((checkbox) => +checkbox.dataset.id);
 
-  if (selectedIds.length === 0) return;
-
-  predeletedStudents = [];
-  prefilteredStudents = [];
-  students.forEach(function (student) {
-    if (selectedIds.includes(student.id)) {
-      predeletedStudents.push(student);
-    } else {
-      prefilteredStudents.push(student);
-    }
-  });
-
+  if (studentsIdsToDelete.length === 0) return;
   isMultipleDelete = true;
 
   window.parent.showDeleteModal(null);
 }
 
-function submitStudentForm(event) {
+async function submitStudentForm(event) {
   event.preventDefault();
-
-  const nameRegex = window.parent.getNameRegex();
 
   const groupSelect = parentDoc.getElementById("group");
   const firstNameInput = parentDoc.getElementById("first-name");
@@ -244,125 +260,55 @@ function submitStudentForm(event) {
   const genderSelect = parentDoc.getElementById("gender");
   const birthdayInput = parentDoc.getElementById("birthday");
 
-  let valid = true;
+  const studentData = JSON.stringify({
+    group: groupSelect.value,
+    firstName: firstNameInput.value,
+    lastName: lastNameInput.value,
+    gender: genderSelect.value,
+    birthday: birthdayInput.value,
+  });
 
-  if (!groupSelect.value) {
-    valid = false;
-    groupSelect.classList.add("invalid-field");
-    groupSelect.classList.remove("disabled-selected");
-    parentDoc.getElementById("group-error").classList.remove("white-text");
-    parentDoc.getElementById("group-error").classList.add("red-text");
+  if (formState === "add") {
+    try {
+      await apiRequest("/api/students", "POST", studentData);
+    } catch (error) {
+      window.parent.showErrorModal(error);
+      return;
+    }
+  } else {
+    try {
+      await apiRequest(`/api/students/${edittedStudentId}`, "PUT", studentData);
+    } catch (error) {
+      window.parent.showErrorModal(error);
+      return;
+    }
   }
-
-  if (
-    !firstNameInput.value ||
-    !nameRegex.test(firstNameInput.value) ||
-    firstNameInput.value.length <= 2
-  ) {
-    valid = false;
-    firstNameInput.classList.add("invalid-field");
-    parentDoc.getElementById("first-name-error").classList.remove("white-text");
-    parentDoc.getElementById("first-name-error").classList.add("red-text");
-  }
-
-  if (
-    !lastNameInput.value ||
-    !nameRegex.test(lastNameInput.value) ||
-    lastNameInput.value.length <= 2
-  ) {
-    valid = false;
-    lastNameInput.classList.add("invalid-field");
-    parentDoc.getElementById("last-name-error").classList.remove("white-text");
-    parentDoc.getElementById("last-name-error").classList.add("red-text");
-  }
-
-  if (!genderSelect.value) {
-    valid = false;
-    genderSelect.classList.add("invalid-field");
-    genderSelect.classList.remove("disabled-selected");
-    parentDoc.getElementById("gender-error").classList.remove("white-text");
-    parentDoc.getElementById("gender-error").classList.add("red-text");
-  }
-
-  if (!birthdayInput.value) {
-    valid = false;
-    birthdayInput.classList.add("invalid-field");
-    birthdayInput.classList.remove("filled-field");
-    parentDoc.getElementById("birthday-error").classList.remove("white-text");
-    parentDoc.getElementById("birthday-error").classList.add("red-text");
-    parentDoc.getElementById("birthday-error").textContent =
-      "Enter a birthday please";
-  } else if (!window.parent.isAgeInRange(birthdayInput.value, 13, 100)) {
-    valid = false;
-    birthdayInput.classList.add("invalid-field");
-    birthdayInput.classList.remove("filled-field");
-    parentDoc.getElementById("birthday-error").classList.remove("white-text");
-    parentDoc.getElementById("birthday-error").classList.add("red-text");
-    parentDoc.getElementById("birthday-error").textContent = "Invalid age";
-  }
-
-  if (!valid) return;
 
   parentDoc.getElementById("student-form").classList.add("invisible");
   parentDoc.getElementById("background-blurer").classList.add("invisible");
 
-  let id;
-
-  if (formState === "add") {
-    idGenerator++;
-    localStorage.setItem("idGenerator", idGenerator);
-    id = idGenerator;
-    students.push({
-      id,
-      group: groupSelect.value,
-      firstName: firstNameInput.value,
-      lastName: lastNameInput.value,
-      gender: genderSelect.value,
-      birthday: birthdayInput.value,
-    });
-  } else {
-    const studentIndex = students.findIndex(
-      (student) => student.id === edittedStudentId
-    );
-
-    id = edittedStudentId;
-
-    students[studentIndex] = {
-      id,
-      group: groupSelect.value,
-      firstName: firstNameInput.value,
-      lastName: lastNameInput.value,
-      gender: genderSelect.value,
-      birthday: birthdayInput.value,
-    };
-  }
-
-  const reqStr =
-    `${formState}: ${id}|${groupSelect.value}|${firstNameInput.value}|` +
-    `${lastNameInput.value}|${genderSelect.value}|${birthdayInput.value}`;
-  console.log(reqStr);
-
-  refillStudentsTable();
+  await refillStudentsTable();
 }
 
-function onDeleteModalApprove(event) {
+async function onDeleteModalApprove(event) {
   event.preventDefault();
-
-  let reqStr = `delete:\n`;
-  for (let i = 0; i < predeletedStudents.length; i++) {
-    reqStr +=
-      `[${i}] - ${predeletedStudents[i].id}|${predeletedStudents[i].group}|${predeletedStudents[i].firstName}|` +
-      `${predeletedStudents[i].lastName}|${predeletedStudents[i].gender}|${predeletedStudents[i].birthday}\n`;
-  }
-  console.log(reqStr);
 
   parentDoc.getElementById("delete-modal").classList.add("invisible");
   parentDoc.getElementById("background-blurer").classList.add("invisible");
-  isMultipleDelete = false;
-  students = prefilteredStudents;
-  predeletedStudents = [];
 
-  refillStudentsTable();
+  try {
+    if (isMultipleDelete) {
+      const idsData = JSON.stringify({ ids: studentsIdsToDelete });
+      await apiRequest("/api/students", "DELETE", idsData);
+    } else {
+      await apiRequest(`/api/students/${studentsIdsToDelete[0]}`, "DELETE");
+    }
+  } catch (error) {
+    window.parent.showErrorModal(error);
+    return;
+  }
+
+  await refillStudentsTable();
 }
 
 function onDeleteModalCancel() {

@@ -9,10 +9,12 @@
       href="assets/icons/icon-256.png"
       type="image/png"
     />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/programming-on-internet/public/manifest.json" />
     <script>
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("service-worker.js");
+        navigator.serviceWorker.register(
+          "/programming-on-internet/public/service-worker.js"
+        );
       }
     </script>
     <title>Students</title>
@@ -48,108 +50,58 @@
       <hr />
 
       <div class="student-form-body">
-        <div class="input-error-container">
-          <div class="input-container">
-            <label for="group" id="group-label">Group</label>
+        <div class="input-container">
+          <label for="group" id="group-label">Group</label>
 
-            <select
-              class="disabled-selected"
-              name="group"
-              id="group"
-              required
-              onchange="onFormSelectChange(this)"
-            >
-              <option value="" disabled selected>Select group</option>
-              <option value="PZ-21">PZ-21</option>
-              <option value="PZ-22">PZ-22</option>
-              <option value="PZ-23">PZ-23</option>
-              <option value="PZ-24">PZ-24</option>
-              <option value="PZ-25">PZ-25</option>
-              <option value="PZ-26">PZ-26</option>
-            </select>
-          </div>
-
-          <p class="error-label white-text" id="group-error">
-            Select a group please
-          </p>
+          <select class="disabled-selected" name="group" id="group" required>
+            <option value="" disabled selected>Select group</option>
+            <option value="PZ-21">PZ-21</option>
+            <option value="PZ-22">PZ-22</option>
+            <option value="PZ-23">PZ-23</option>
+            <option value="PZ-24">PZ-24</option>
+            <option value="PZ-25">PZ-25</option>
+            <option value="PZ-26">PZ-26</option>
+          </select>
         </div>
 
-        <div class="input-error-container">
-          <div class="input-container">
-            <label for="first-name" id="first-name-label">First name</label>
+        <div class="input-container">
+          <label for="first-name" id="first-name-label">First name</label>
 
-            <input
-              type="text"
-              name="first-name"
-              id="first-name"
-              onchange="onNameInputChange(this)"
-              required
-              autocomplete="given-name"
-            />
-          </div>
-
-          <p class="error-label white-text" id="first-name-error">
-            Enter a valid first name please
-          </p>
+          <input
+            type="text"
+            name="first-name"
+            id="first-name"
+            required
+            autocomplete="given-name"
+          />
         </div>
 
-        <div class="input-error-container">
-          <div class="input-container">
-            <label for="last-name" id="last-name-label">Last name</label>
+        <div class="input-container">
+          <label for="last-name" id="last-name-label">Last name</label>
 
-            <input
-              type="text"
-              name="last-name"
-              id="last-name"
-              onchange="onNameInputChange(this)"
-              required
-              autocomplete="family-name"
-            />
-          </div>
-
-          <p class="error-label white-text" id="last-name-error">
-            Enter a valid last name please
-          </p>
+          <input
+            type="text"
+            name="last-name"
+            id="last-name"
+            required
+            autocomplete="family-name"
+          />
         </div>
 
-        <div class="input-error-container">
-          <div class="input-container">
-            <label for="gender" id="gender-label">Gender</label>
+        <div class="input-container">
+          <label for="gender" id="gender-label">Gender</label>
 
-            <select
-              class="disabled-selected"
-              name="gender"
-              id="gender"
-              required
-              onchange="onFormSelectChange(this)"
-            >
-              <option value="" disabled selected>Select gender</option>
-              <option value="M">M</option>
-              <option value="F">F</option>
-            </select>
-          </div>
-
-          <p class="error-label white-text" id="gender-error">
-            Select a gender please
-          </p>
+          <select class="disabled-selected" name="gender" id="gender" required>
+            <option value="" disabled selected>Select gender</option>
+            <option value="M">M</option>
+            <option value="F">F</option>
+          </select>
         </div>
 
-        <div class="input-error-container">
-          <div class="input-container">
-            <label for="birthday">Birthday</label>
+        <div class="input-container">
+          <label for="birthday">Birthday</label>
 
-            <input
-              type="date"
-              name="birthday"
-              id="birthday"
-              onchange="onFormDateInputChange(this)"
-              required
-            />
-          </div>
-
-          <p class="error-label white-text" id="birthday-error">
-            Enter a birthday please
-          </p>
+          <input type="date" name="birthday" id="birthday" required />
         </div>
       </div>
 
@@ -164,9 +116,9 @@
       </menu>
     </form>
 
-    <form class="delete-modal invisible" id="delete-modal">
-      <div class="delete-modal-header">
-        <h2 class="delete-modal-title">Warning</h2>
+    <form class="modal delete-modal invisible" id="delete-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Warning</h2>
 
         <button
           type="button"
@@ -190,15 +142,52 @@
 
       <hr />
 
-      <div class="delete-modal-body">
-        <h2 class="delete-modal-message" id="delete-modal-message"></h2>
+      <div class="modal-body">
+        <h2 class="modal-message" id="delete-modal-message"></h2>
       </div>
 
       <hr />
 
-      <menu class="delete-modal-menu">
+      <menu class="modal-menu">
         <button type="reset" id="cancel-delete-btn">Cancel</button>
         <button type="submit" id="approve-delete-btn">Yes, delete</button>
+      </menu>
+    </form>
+
+    <form class="modal error-modal invisible" id="error-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Error</h2>
+
+        <button
+          type="button"
+          class="square-btn icon-btn delete-btn"
+          onclick="hideErrorModal()"
+        >
+          <svg
+            fill="#000000"
+            width="800px"
+            height="800px"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 14.545L1.455 16 8 9.455 14.545 16 16 14.545 9.455 8 16 1.455 14.545 0 8 6.545 1.455 0 0 1.455 6.545 8z"
+              fill-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <hr />
+
+      <div class="modal-body">
+        <h2 class="modal-message" id="error-modal-message"></h2>
+      </div>
+
+      <hr />
+
+      <menu class="modal-menu">
+        <button type="reset" onclick="hideErrorModal()">Ok</button>
       </menu>
     </form>
 

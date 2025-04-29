@@ -29,14 +29,6 @@ hr {
   visibility: hidden;
 }
 
-.white-text {
-  color: white;
-}
-
-.red-text {
-  color: red;
-}
-
 .background-blurer {
   position: fixed;
   width: 100%;
@@ -138,9 +130,6 @@ hr {
 
 .student-form-body .input-container input[type="date"] {
   padding-right: 5px;
-}
-
-.student-form-body .input-container input[type="date"]:not(.invalid-field) {
   color: #d0cccc;
 }
 
@@ -152,16 +141,6 @@ hr {
   outline: none;
   border-color: #666666;
   color: #666666;
-}
-
-.student-form-body .input-error-container .error-label {
-  font-size: 9px;
-  margin: 5px 0 0 104px;
-}
-
-.student-form-body .input-container .invalid-field {
-  border-color: red;
-  color: red;
 }
 
 .student-form-menu {
@@ -189,8 +168,7 @@ hr {
   border-color: black;
 }
 
-.delete-modal {
-  width: 600px;
+.modal {
   height: 350px;
   box-sizing: border-box;
   background-color: white;
@@ -199,7 +177,6 @@ hr {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
-  border: 1px solid #666666;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -207,35 +184,57 @@ hr {
   align-items: stretch;
 }
 
-.delete-modal-header {
+.delete-modal {
+  width: 600px;
+  border: 1px solid #666666;
+}
+
+.error-modal {
+  width: 400px;
+  border: 1px solid red;
+}
+
+.error-modal hr {
+  border-color: red;
+}
+
+.modal-header {
   display: flex;
   justify-content: space-between;
   padding: 30px 30px 10px;
 }
 
-.delete-modal-header .delete-modal-title {
+.modal-header .modal-title {
   font-size: 1.2em;
   font-weight: bold;
 }
 
-.delete-modal-body {
+.error-modal-title {
+  color: red;
+}
+
+.modal-body {
   padding: 30px;
   height: 100px;
 }
 
-.delete-modal-body .delete-modal-message {
+.modal-body .modal-message {
   font-size: 1.2em;
   font-weight: bold;
 }
 
-.delete-modal-menu {
+.error-modal-title {
+  color: red;
+}
+
+.modal-menu {
   padding: 10px 30px 30px;
   display: flex;
   justify-content: flex-end;
   gap: 20px;
 }
 
-.delete-modal-menu button {
+.modal-menu button {
   width: 90px;
   padding: 10px 5px;
   border: 1px solid #666666;
@@ -243,11 +242,11 @@ hr {
   background-color: white;
 }
 
-.delete-modal-menu button:hover {
+.modal-menu button:hover {
   background-color: #eeeeee;
 }
 
-.delete-modal-menu button:focus {
+.modal-menu button:focus {
   outline: none;
   color: black;
   border-color: black;
