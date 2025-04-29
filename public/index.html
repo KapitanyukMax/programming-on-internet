@@ -53,7 +53,13 @@
         <div class="input-container">
           <label for="group" id="group-label">Group</label>
 
-          <select class="disabled-selected" name="group" id="group" required>
+          <select
+            class="disabled-selected"
+            name="group"
+            id="group"
+            onchange="onFormSelectChange(this)"
+            required
+          >
             <option value="" disabled selected>Select group</option>
             <option value="PZ-21">PZ-21</option>
             <option value="PZ-22">PZ-22</option>
@@ -91,7 +97,13 @@
         <div class="input-container">
           <label for="gender" id="gender-label">Gender</label>
 
-          <select class="disabled-selected" name="gender" id="gender" required>
+          <select
+            class="disabled-selected"
+            name="gender"
+            id="gender"
+            onchange="onFormSelectChange(this)"
+            required
+          >
             <option value="" disabled selected>Select gender</option>
             <option value="M">M</option>
             <option value="F">F</option>
@@ -101,7 +113,13 @@
         <div class="input-container">
           <label for="birthday">Birthday</label>
 
-          <input type="date" name="birthday" id="birthday" required />
+          <input
+            type="date"
+            name="birthday"
+            id="birthday"
+            onchange="onFormDateInputChange(this)"
+            required
+          />
         </div>
       </div>
 

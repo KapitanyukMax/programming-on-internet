@@ -8,6 +8,10 @@ function onFormSelectChange(select) {
   }
 }
 
+function onFormDateInputChange(dateInput) {
+  dateInput.classList.add("filled-field");
+}
+
 function onFormCancel() {
   document.getElementById("student-form").reset();
   document.getElementById("student-form").classList.add("invisible");
