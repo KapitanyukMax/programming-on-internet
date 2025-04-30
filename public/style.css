@@ -169,7 +169,6 @@ hr {
 }
 
 .modal {
-  height: 350px;
   box-sizing: border-box;
   background-color: white;
   position: fixed;
@@ -186,6 +185,7 @@ hr {
 
 .delete-modal {
   width: 600px;
+  height: 350px;
   border: 1px solid #666666;
 }
 
